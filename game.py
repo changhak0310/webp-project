@@ -1,75 +1,110 @@
 import turtle
-p1 = turtle.Turtle()
-p2 = turtle.Turtle()
+
+sc = turtle.Screen()
+sc.title("Game_Web")
+sc.bgcolor("white")
+sc.setup(width=1000, height=700)
+
+#왼쪽 플레이어
+leftPlayer = turtle.Turtle()
+leftPlayer.speed(0)
+leftPlayer.shape("square")
+leftPlayer.color("black")
+leftPlayer.shapesize(stretch_wid=6, stretch_len=1)
+leftPlayer.penup()
+leftPlayer.goto(-400, 0)
+
+#오른쪽 플레이어
+rightPlayer = turtle.Turtle()
+rightPlayer.speed(0)
+rightPlayer.shape("square")
+rightPlayer.color("black")
+rightPlayer.shapesize(stretch_wid=6, stretch_len=1)
+rightPlayer.penup()
+rightPlayer.goto(400, 0)
+
+#공
 ball = turtle.Turtle()
-screen1 = p1.getscreen()
-screen2 = p2.getscreen()
-movespeed = 30
-def init_setting():
-    turtle.setup(width=1000,height=700)
-    p1.speed(0)
-    p2.speed(0)
-    ball.ht()
-    p1.ht()
-    p2.ht()
-    p1.lt(90)
-    p2.lt(90)
-    p1.shape('square')
-    p1.shapesize(stretch_wid=0.5, stretch_len=6, outline=None)
-    p2.shape('square')
-    p2.shapesize(stretch_wid=0.5, stretch_len=6, outline=None)
-    ball.shape('circle')
-    ball.shapesize(stretch_wid=2, stretch_len=2, outline=None)
-    ball.color('blue')
-    p1.penup()
-    p2.penup()
-    p1.goto(-450,0)
-    p2.goto(450,0)
-    ball.st()
-    p1.st()
-    p2.st()
+ball.speed(0)
+ball.shape("circle")
+ball.color("blue")
+ball.penup()
+ball.goto(0, 0)
+ball.dx = 5 #공 방향
+ball.dy = -5
 
-def player_moveUp_1():
-    p1.fd(movespeed)
-    if(p1.ycor()>=270.0):
-        p1.setpos(-450,270)
+#점수 
+leftScore = 0
+rightScore = 0
 
-def player_moveDown_1(): 
-    p1.back(movespeed)
-    if(p1.ycor()<=-270.0):
-        p1.setpos(-450,-270)
+score = turtle.Turtle()
+score.speed(0)
+score.color("Black")
+score.penup()
+score.ht()
+score.goto(0, 260)
+score.write("Left_player : "+str(leftScore)+" / Right_player: "+str(rightScore),align="center",font=("Arial", 24, "normal"))
 
-def player_moveUp_2():
-    p2.fd(movespeed)
-    if(p2.ycor()>=270.0):
-        p2.setpos(450,270)
+def LmoveUp(): #왼쪽 위 움직임
+	leftPlayer.sety(leftPlayer.ycor()+20)
+	if leftPlayer.ycor()>=280: #벽
+		leftPlayer.setpos(-400,280)
 
-def player_moveDown_2(): 
-    p2.back(movespeed)
-    if(p2.ycor()<=-270.0):
-        p2.setpos(450,-270)
+def LmoveDown(): #왼쪽 아래 움직임
+	leftPlayer.sety(leftPlayer.ycor()-20)
+	if leftPlayer.ycor()<=-280: #벽
+		leftPlayer.setpos(-400,-280)
 
+def RmoveUp(): #오른쪽 위 움직임
+	rightPlayer.sety(rightPlayer.ycor()+20)
+	if rightPlayer.ycor()>=280: #벽
+		rightPlayer.setpos(400,280)
 
+def RmoveDown(): #오른쪽 아래 움직임
+	rightPlayer.sety(rightPlayer.ycor()-20)
+	if rightPlayer.ycor()<=-280: #벽
+		rightPlayer.setpos(400,-280)
 
+#'w','s' '↑','↓' 움직임
+sc.onkeypress(LmoveUp, "w")
+sc.onkeypress(LmoveDown, "s")
+sc.onkeypress(RmoveUp, "Up")
+sc.onkeypress(RmoveDown, "Down")
+sc.listen()
 
+#프레임
+while True:
+	sc.update()
+	ball.setx(ball.xcor()+ball.dx)
+	ball.sety(ball.ycor()+ball.dy)
+      #벽 감지
+	if ball.ycor() > 280:
+		ball.sety(280)
+		ball.dy *= -1
 
-        
+	if ball.ycor() < -280:
+		ball.sety(-280)
+		ball.dy *= -1
+      #공 골인시 점수
+	if ball.xcor() > 500:
+		ball.goto(0, 0)
+		ball.dy *= -1
+		leftScore += 1
+		score.clear()
+		score.write("Left_player : "+str(leftScore)+" / Right_player: "+str(rightScore),align="center",font=("Arial", 24, "normal"))
 
-init_setting()
-#dsad
-screen1.onkeypress(player_moveUp_1,'w')
-screen1.onkeypress(player_moveDown_1,'s')
-screen2.onkeypress(player_moveUp_2,'Up')
-screen2.onkeypress(player_moveDown_2,'Down')
+	if ball.xcor() < -500:
+		ball.goto(0, 0)
+		ball.dy *= -1
+		rightScore += 1
+		score.clear()
+		score.write("Left_player : "+str(leftScore)+" / Right_player: "+str(rightScore),align="center",font=("Arial", 24, "normal"))
 
-screen1.listen()
-screen2.listen()
-screen1.mainloop()
-screen2.mainloop()
-
-
-
-
-
-
-
+      #공 플레이어와 튕김
+	if (ball.xcor() > 360 and ball.xcor() < 370) and (ball.ycor() < rightPlayer.ycor()+62 and ball.ycor() > rightPlayer.ycor()-62):
+		ball.setx(360)
+		ball.dx*=-1
+		
+	if (ball.xcor()<-360 and ball.xcor()>-370) and (ball.ycor()<leftPlayer.ycor()+62 and ball.ycor()>leftPlayer.ycor()-62):
+		ball.setx(-360)
+		ball.dx*=-1
